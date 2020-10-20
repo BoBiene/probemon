@@ -61,7 +61,7 @@ def parse_rssi(packet):
     return dbm_antsignal
 
 
-def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi, mqtt_topic):
+def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi,ignoreMac, mqtt_topic):
     def packet_callback(packet):
 
         global sensor_data
@@ -70,6 +70,10 @@ def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi, mqt
         # we are looking for management frames with a probe subtype
         # if neither match we are done here
         if packet.type != 0 or packet.subtype != 0x04 or packet.type is None:
+            return
+
+        # Mac address is on ignore list
+        if packet.addr2.upper() in ignoreMac:
             return
 
         # list of output fields
@@ -126,6 +130,8 @@ def main():
 
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('-i', '--interface', help="capture interface")
+    parser.add_argument('-I', '--ignore-mac', default='',
+                        help="comma sepperated list with mac-adresses to ignore")
     parser.add_argument('-t', '--time', default='iso',
                         help="output time format (unix, iso)")
     parser.add_argument('-b', '--max-bytes', default=5000000,
@@ -184,8 +190,12 @@ def main():
         logger.setLevel(logging.INFO)
         if args.log:
             logger.addHandler(logging.StreamHandler(sys.stdout))
+        macIgnoreList =args.ignore_mac.split(',')
+        macIgnoreList = [item.strip().upper() for item in  macIgnoreList]
+        for val in macIgnoreList:
+            print('Ignoring messages from: ' + val)
         built_packet_cb = build_packet_callback(args.time, logger,
-                                                args.delimiter, args.mac_info, args.ssid, args.rssi, args.mqtt_topic)
+                                                args.delimiter, args.mac_info, args.ssid, args.rssi,macIgnoreList, args.mqtt_topic)
         sniff(iface=args.interface, prn=built_packet_cb, store=0, monitor=True)
     finally:
         # Remove PID File on Exit
