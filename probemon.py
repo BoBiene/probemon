@@ -182,6 +182,7 @@ def main():
             client.username_pw_set(args.mqtt_user, args.mqtt_password)
 
         if args.mqtt_broker:
+            print("using mqtt broker ", args.mqtt_broker," and topic ",args.mqtt_topic)
             client.connect(args.mqtt_broker, int(args.mqtt_port), 1)
             client.loop_start()
 
