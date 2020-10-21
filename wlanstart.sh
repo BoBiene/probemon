@@ -20,7 +20,7 @@ ip link set ${INTERFACE} up
 
 LOCAL_MACS=$(ifconfig | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | paste -sd, -)
 
-python3 /bin/probemon.py -i ${INTERFACE} --ignore-mac "${LOCAL_MACS}" $@
+python3 /bin/probemon.py -i ${INTERFACE} --ignore-mac2 "${LOCAL_MACS}" $@
 
 # ip link set ${INTERFACE} down
 # iw ${INTERFACE} set type monitor

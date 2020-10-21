@@ -130,7 +130,9 @@ def main():
 
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('-i', '--interface', help="capture interface")
-    parser.add_argument('-I', '--ignore-mac', default='',
+    parser.add_argument('-I', '--ignore-mac', default='', 
+                        help="comma sepperated list with mac-adresses to ignore")
+    parser.add_argument('-I2', '--ignore-mac2', default='', 
                         help="comma sepperated list with mac-adresses to ignore")
     parser.add_argument('-t', '--time', default='iso',
                         help="output time format (unix, iso)")
@@ -191,8 +193,10 @@ def main():
         logger.setLevel(logging.INFO)
         if args.log:
             logger.addHandler(logging.StreamHandler(sys.stdout))
-        macIgnoreList =args.ignore_mac.split(',')
+        macIgnoreList = args.ignore_mac.split(',')
         macIgnoreList = [item.strip().upper() for item in  macIgnoreList]
+        for val in args.ignore_mac2.split(','):
+            macIgnoreList.append(val.strip().upper())
         for val in macIgnoreList:
             print('Ignoring messages from: ' + val)
         built_packet_cb = build_packet_callback(args.time, logger,
